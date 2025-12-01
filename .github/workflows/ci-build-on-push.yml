@@ -13,4 +13,6 @@ jobs:
     uses: ./.github/workflows/reusable-android-build.yml
     with:
       upload_artifacts: true
+      # create_release will be true for pushes to main branch or for tags
+      create_release: ${{ startsWith(github.ref, 'refs/tags/') || github.ref == 'refs/heads/main' }}
     secrets: inherit

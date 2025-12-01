@@ -17,13 +17,19 @@ on:
         required: false
         type: boolean
         default: true
+      create_release:
+        description: 'Whether to create a GitHub Release and upload built artifacts there (requires contents: write permission)'
+        required: false
+        type: boolean
+        default: false
 
 jobs:
   build_and_detekt:
     runs-on: ubuntu-latest
+    # Creating a GitHub Release requires write access to repository contents.
     permissions:
       id-token: write
-      contents: read
+      contents: write
       attestations: write
     timeout-minutes: 35
     env:
@@ -104,3 +110,36 @@ jobs:
             app/build/reports
             **/build/reports/detekt
           retention-days: 14
+
+      # Optionally create a GitHub Release and attach built APKs as release assets.
+      - name: Create Release for build
+        if: ${{ inputs.create_release }}
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: build-${{ steps.calculate_version_code.outputs.versionCode }}-${{ github.run_id }}
+          release_name: "CI build ${{ steps.calculate_version_code.outputs.versionCode }} (${{ github.sha }})"
+          body: |
+            Automated CI build — version ${{ steps.calculate_version_code.outputs.versionCode }}
+          draft: true
+          prerelease: false
+
+      - name: Upload F-Droid APK to Release
+        if: ${{ inputs.create_release }}
+        uses: actions/upload-release-asset@v2
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: app/build/outputs/apk/fdroid/debug/app-fdroid-debug.apk
+          asset_name: app-fdroid-debug.apk
+          asset_content_type: application/vnd.android.package-archive
+
+      - name: Upload Google APK to Release
+        if: ${{ inputs.create_release }}
+        uses: actions/upload-release-asset@v2
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: app/build/outputs/apk/google/debug/app-google-debug.apk
+          asset_name: app-google-debug.apk
+          asset_content_type: application/vnd.android.package-archive
