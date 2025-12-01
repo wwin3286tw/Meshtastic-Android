@@ -237,10 +237,11 @@ fun MainScreen(uIViewModel: UIViewModel = hiltViewModel(), scanModel: BTScanMode
 
     val traceRouteResponse by uIViewModel.tracerouteResponse.observeAsState()
     traceRouteResponse?.let { response ->
+        // Make the dialog body scrollable so long traceroute outputs are readable
         SimpleAlertDialog(
             title = Res.string.traceroute,
             text = {
-                Column(modifier = Modifier.verticalScroll(rememberScrollState())) {
+                Box(modifier = Modifier.verticalScroll(rememberScrollState())) {
                     Text(text = annotateTraceroute(response))
                 }
             },

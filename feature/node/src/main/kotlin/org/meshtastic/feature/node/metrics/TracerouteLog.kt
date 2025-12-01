@@ -26,6 +26,8 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
@@ -101,9 +103,14 @@ fun TracerouteLogScreen(
 
     if (showDialog != null) {
         val message = showDialog ?: AnnotatedString("") // Should not be null if dialog is shown
+        // Dialog content may be long — make it scrollable and selectable
         SimpleAlertDialog(
             title = Res.string.traceroute,
-            text = { SelectionContainer { Text(text = message) } },
+            text = {
+                Box(modifier = Modifier.verticalScroll(rememberScrollState()).heightIn(max = 420.dp)) {
+                    SelectionContainer { Text(text = message) }
+                }
+            },
             onDismiss = { showDialog = null },
         )
     }
