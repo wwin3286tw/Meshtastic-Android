@@ -30,4 +30,5 @@ Where to find the output:
 Notes & troubleshooting:
 - The project includes a git submodule with protobuf definitions. If you cloned this repo yourself, clone recursively OR initialize submodules before building: `git submodule update --init --recursive`.
 - If you need the `google` flavor, add your `MAPS_API_KEY` to `local.properties` (or pass it into the container) or otherwise set up Google service credentials.
+ - CI: This repo includes a GitHub Actions workflow `.github/workflows/ci-build-on-push.yml` which calls the project's existing `reusable-android-build.yml` (this will build and upload APK artifacts). The workflow will run on push and PRs. If you want to publish Google-flavored artifacts in CI you'll need to set `MAPS_API_KEY` / signing keystore secrets in the repo's Settings → Secrets.
 - Builds can take a while on first run (downloads Gradle, SDK tools and dependencies). Subsequent builds are faster when the container or bind-mounted gradle cache is reused.
